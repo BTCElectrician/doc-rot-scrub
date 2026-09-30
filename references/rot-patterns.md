@@ -120,11 +120,12 @@ silence. For each candidate, pull 2–3 of its named file paths and function
 names and check them against the codebase — do the files exist, do the
 functions still live there with those signatures?
 
-Disposition: DELETE, even when partially accurate. The job these docs did —
-compressing the codebase for small context windows — is obsolete; the agent
-should read the code. If a packet contains genuine rationale documented
-nowhere else, extract that one insight into a current doc; never resume
-updating the packet.
+Disposition: check the document's current consumer and whether its upkeep is
+justified. Retire stale code narration when live code inspection meets that
+need; keep a small verified map for a named consumer when it earns its upkeep.
+Preserve unique rationale, decisions, constraints, or unfinished work in the
+owning current surface before retiring a packet. Do not create a replacement
+map by default.
 
 Field note: operators describe maintaining these by hand "every two days" as
 a workaround before agents could read a whole codebase and produce a
@@ -134,8 +135,8 @@ preferred the confident stale excerpt over reading the live source.
 ## 6. Weak-model-era briefing artifacts
 
 Old implementation plans, "context for the AI" files, pasted chat diagnoses,
-dated week-folders, one-off patch snippets. Correct habit for 2023-24 models;
-pure hazard now.
+dated week-folders, one-off patch snippets. These may contain stale behavior
+claims or unique decisions and unfinished work; inspect before disposition.
 
 Detect: filename patterns `*PLAN*`, `*CONTEXT*`, `*GUIDE*`, `*PROMPT*`,
 `*IMPLEMENTATION*`, `*HANDOFF*`, `week-*/`, month-named dirs; cross-check
@@ -143,8 +144,9 @@ age (`git log -1 --format=%cs -- <path>`) and whether any agent surface
 references them (`rg -uu -l "$(basename <path>)"`).
 Rule of thumb: >6 months untouched AND unreferenced from any surface.
 
-Disposition: DELETE (or MOVE into the archive dir if the repo has one and
-the doc records a decision not captured elsewhere).
+Disposition: retire verified stale material; archive or link unique decisions,
+constraints, requested deliverables, and unfinished work in the owner's
+current surface. Age and filename alone do not justify deletion.
 
 Field note: 75–81% of tracked markdown in two repos fell in this bucket,
 including a 749-line pasted AI diagnosis.
@@ -178,8 +180,9 @@ framing first.
 Detect: for every doc with a banner or "historical" label, grep which
 surfaces still cite it: `rg -uu -l "$(basename <doc>)" AGENTS.md CLAUDE.md README.md docs/`
 
-Disposition: finish the job — delete the doc AND fix every citing surface in
-the same change.
+Disposition: finish the retirement consistently. If deletion is supported by
+the content and consumer checks, remove the doc and fix every citing surface
+in the same change. Otherwise archive or correct the doc and its citations.
 
 Field note: a repo's STATUS.md said "do not read the local mirrors" while its
 AGENTS.md — read first — still said "the local mirror is <file>; trust it".
@@ -237,11 +240,10 @@ read as authoritative once found.
 Detect: for each cluster member, `rg -uu -l "$(basename <file>)"` — if all
 hits are inside the cluster, it is orphaned.
 
-Disposition: DELETE — but only after a spot-check. Orphanhood alone is a
-linking signal, not a verdict: an orphan that FAILS its spot-checks is rot
-(delete); an orphan that PASSES them is a linking gap or pending work — see
-pattern 12. Check the docs index actually never listed them, and clean the
-index if it did.
+Disposition: orphanhood is a linking signal, not a verdict. Check accuracy,
+unique content, and unfinished work. Remove verified rot only after those
+checks; an accurate orphan may reveal a linking gap or pending work — see
+pattern 12. Correct any stale index pointers in the same change.
 
 Field note: an eight-file mirror bundle sat quarantined in a legacy folder,
 referenced by nothing but itself, for five months after everyone forgot it.
