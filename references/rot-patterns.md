@@ -54,20 +54,28 @@ the signature.
 Disposition: keep at most the copy in the owning repo (if fresh); delete the
 rest per pattern 1.
 
-## 3. Stale editor-agent rules (.cursor/rules, .cursorrules, copilot-instructions)
+## 3. Stale editor-agent rules (.cursor/rules, .cursorrules, Copilot instructions)
 
 The sneakiest surface in the field. These files are auto-loaded by editors,
 never listed in docs indexes, and nobody maintains them. They are read by
 agents on every session.
 
-Detect: `ls .cursor/rules/ .cursorrules .github/copilot-instructions.md`
+Detect:
+```
+ls -d .cursor/rules/ .cursorrules .github/copilot-instructions.md \
+      .github/instructions/ .claude/rules/ 2>/dev/null
+```
 then verify EVERY factual claim against the codebase: framework and version
 (check the real package/dependency file), endpoints, model IDs, index/service
-names, file paths.
+names, file paths. Also check the file still loads where its author expected:
+Cursor treats a root `.cursorrules` as legacy and lets `.cursor/rules/*.mdc`
+override it, and ignores plain `.md` files in `.cursor/rules/`. A rule that
+no longer loads in its editor still misleads any agent that reads it.
 
-Disposition: DELETE when generic-2024-era or wrong (the canonical agent
-surface is `AGENTS.md`); FIX in place only when the file is genuinely used
-and mostly right.
+Disposition: DELETE when generic-2024-era or wrong (point agents at the
+repo's cross-tool surface, usually `AGENTS.md`, which current Cursor,
+Copilot, and Codex releases all read); FIX in place only when the file is
+genuinely used and mostly right.
 
 Field note: one repo's rules claimed it was a Next.js app — it was Flask.
 Another cited an endpoint renamed months earlier, dead model IDs, and paths

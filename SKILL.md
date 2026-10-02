@@ -1,6 +1,8 @@
 ---
 name: doc-rot-scrub
-description: Audit and scrub stale AI-era markdown so it stops misleading coding agents — hand-maintained "workflow"/context docs full of extracted functions and file maps, old PRDs and plans, cross-repo "mirror docs", duplicate doc trees, and stale editor rules (.cursor/rules, .cursorrules, copilot-instructions). Use whenever the user mentions old docs or markdown misleading agents or polluting context, an agent going off course from a stale doc, documentation debt, doc cleanup/audit/scrub, mirror docs, old PRDs/context files they used to keep updated by hand, or a repo full of markdown from the early vibe-coding era — even if they never say the word "scrub".
+description: Audit and scrub stale AI-era markdown that misleads coding agents, such as hand-maintained "workflow"/context docs full of extracted functions and file maps, old PRDs and plans, cross-repo "mirror docs", duplicate doc trees, and stale editor rules (.cursor/rules, .cursorrules, Copilot instruction files). Use whenever the user mentions old docs or markdown misleading agents or polluting context, an agent going off course from a stale doc, documentation debt, doc cleanup/audit/scrub, mirror docs, old PRDs/context files they used to keep updated by hand, or a repo full of markdown from the early vibe-coding era, even if they never say "scrub". Not for routine edits to a single current instruction file.
+license: MIT
+compatibility: Needs git and a shell. Detection commands use rg (ripgrep), diff, and comm.
 ---
 
 # Doc-Rot Scrub
@@ -84,11 +86,24 @@ Answer these for each target repo; they decide execution mechanics later:
 Work in this order; the order is the method:
 
 1. **Agent surfaces first.** Enumerate every file that instructs agents:
-   `AGENTS.md`, `CLAUDE.md`, `README` "start here" sections, docs-index
-   READMEs, `.cursor/rules/*` and `.cursorrules`,
-   `.github/copilot-instructions.md`, `.codex/` prompts/skills. Extract each
-   surface's mandated reading list. **The danger is not a stale doc existing;
-   it is a stale doc being cited from a startup surface.** Priority =
+   - `AGENTS.md` (root and nested), `CLAUDE.md`, `.claude/CLAUDE.md`,
+     `CLAUDE.local.md`, `.claude/rules/**/*.md`, `GEMINI.md`
+   - `.cursor/rules/*.mdc` and the legacy root `.cursorrules`
+   - `.github/copilot-instructions.md` and
+     `.github/instructions/*.instructions.md`
+   - skill and prompt directories: `.claude/skills/`, `.agents/skills/`,
+     `.codex/` (skills and prompts), `.cursor/skills/`, `.github/skills/`
+   - `README` "start here" sections and docs-index READMEs
+
+   Extract each surface's mandated reading list, then check which surfaces
+   each tool in use actually loads. Load rules differ by tool and change
+   between releases: by default Claude Code reads `AGENTS.md` only when no
+   `CLAUDE.md` exists, so a stale `CLAUDE.md` can hide a current `AGENTS.md`;
+   Cursor's rules system ignores plain `.md` files in `.cursor/rules/`.
+   Confirm load behavior in the tool's current docs, not from memory. A file
+   no tool auto-loads can still mislead an agent that greps for it, so
+   classify it anyway. **The danger is not a stale doc existing; it is a
+   stale doc being cited from a startup surface.** Priority =
    referenced-from-surface × stale.
 2. **Genre gate.** Before classifying anything, sort the inventory by
    intended reader — the freshness contract this skill enforces applies only
@@ -109,7 +124,7 @@ Work in this order; the order is the method:
      freshness disposition.
    In corpus-heavy repos runtime data can be a third to half of all markdown,
    and mis-auditing it as rot is the worst failure this skill can commit.
-3. **Inventory.** `git ls-files '*.md'` (plus `.mdc` editor rules), count by
+3. **Inventory.** `git ls-files '*.md' '*.mdc' .cursorrules`, count by
    directory, capture last-commit date per candidate
    (`git log -1 --format=%cs -- <path>`).
 4. **Classify** against the two axes using the pattern catalog — read
