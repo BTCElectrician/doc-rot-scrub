@@ -1,0 +1,23 @@
+name: Validate skill
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      # The checkout lands in a directory named after the repo, which the
+      # Agent Skills spec requires to match the `name` field in SKILL.md.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Validate SKILL.md against the Agent Skills spec
+        run: >
+          uvx --from
+          'git+https://github.com/agentskills/agentskills@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref'
+          skills-ref validate "$GITHUB_WORKSPACE"
